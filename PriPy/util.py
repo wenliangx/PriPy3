@@ -6,8 +6,8 @@ from PlanePy.util import translate_velocity
 
 def priority_d(position_x: np.ndarray,
                position_y: np.ndarray,
-               r_min: Union[int, float] = 50,
-               r_max: Union[int, float] = 150):
+               r_min: Union[int, float] = 10,
+               r_max: Union[int, float] = 30):
     return float(
         np.exp(-np.power((np.linalg.norm(position_y - position_x) - (r_min + r_max) / 2) / (r_max - r_min), 2)))
 

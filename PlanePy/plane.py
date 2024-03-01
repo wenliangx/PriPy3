@@ -4,6 +4,7 @@ from typing import Union
 from PlanePy.value import Value
 
 
+# 比起基础飞机，添加计算最佳策略的类Value
 class Plane(BasePlane):
     def __init__(self, position: Union[list, tuple, np.ndarray] = None,
                  velocity: Union[list, tuple, np.ndarray] = None,
@@ -12,6 +13,7 @@ class Plane(BasePlane):
         super(Plane, self).__init__(position, velocity, velocity_limit, ubs)
         self.__values = Value(func=func)
 
+    # 通过输入值（速度改变量）和时间间隔计算并返回下一时刻的飞机
     def calculate_updated_plane(self, values: Union[list, tuple, np.ndarray], time: float):
 
         updated_base_plane = super().calculate_updated_plane(values=values, time=time)
@@ -25,14 +27,16 @@ class Plane(BasePlane):
     def values(self):
         return self.__values.value
 
+    # 返回父类基础飞机
     @property
-    def base_plane(self):
-        return BasePlane(position=self.position, velocity=self.velocity,
-                         velocity_limit=self.velocity_limit, ubs=self.ubs)
+    def base_plane(self) -> BasePlane:
+        return BasePlane(self.position, self.velocity, self.velocity_limit, self.ubs)
 
+    # 计算最佳策略值
     def calculate_values(self, planes_y: list = None, k: list = None, **kwargs):
         self.__values.calculate(plane_x=self.base_plane, planes_y=planes_y, k=k, **kwargs)
 
     def __del__(self):
-        del self.position
-        del self.velocity
+        super(Plane, self).__del__()
+        del self.__values
+

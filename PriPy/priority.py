@@ -13,14 +13,14 @@ class Priority:
         if planes_x is None:
             planes_x = list(map(
                 lambda i:
-                Plane(position=[50 * i - 50, 0, 0],
-                      velocity=[10, 0, 0]),
+                Plane(position=[10 + 8 * i, 0, 0],
+                      velocity=[5 - 0.6 * i, 1 + 2 * i, 1.1 * i]),
                 range(size)))
         if planes_y is None:
             planes_y = list(map(
                 lambda i:
-                Plane(position=[50 * i - 50, 100, 10 * i],
-                      velocity=[10, -np.pi, 0]),
+                Plane(position=[-7 + 5 * i, 10, 10 * i],
+                      velocity=[5 - 0.6 * i, -np.pi - i, 1.5 * i]),
                 range(size)))
         self.planes_x = planes_x
         self.planes_y = planes_y
@@ -57,7 +57,7 @@ class Priority:
             self.k_x = k_x
 
         if k_y is None:
-            self.k_y = [0.1, 0.3, 0.6]
+            self.k_y = [0.05, 0.15, 0.8]
         else:
             self.k_y = k_y
         self.time = time

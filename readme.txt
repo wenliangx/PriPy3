@@ -1,21 +1,14 @@
-版本：2.0.0
-类：plane priority
+类：BasePlane
+作用：包含最基本的位置、速度、速率限制和加速度限制
 
-plane：
-	属性：
-		飞机的位置（直角坐标系）速度（球坐标系）
-	 	更新的位置和速度
-	方法：
-		calculate_update_velocity：根据所给值和方法计算更新速度 
-		calculate_update_position：根据更新速度计算更新位置
-		translate_velocity：返回直角坐标系下的速度
-		update：将当前的速度和位置更新为更新的位置和速度
+类：BaseCalculateFunc
+作用：用于计算飞机最佳数值的方法接口
 
-priority：
-	属性：
-		两架飞机，优势矩阵和粒子群算法计算最佳策略值的相关参数
-	方法：
-		priority_d， priority_v， priority_a：分别计算距离，速度和角度优势
-		single_priority：计算某一种策略下的飞机对飞机的优势	
-		matrix_priority：粒子群算法计算最佳值，并通过调用single_priority计算各策略下的优势返回优势矩阵，本方法在初始化时自动调用
-		
+类：Value
+作用：用于计算飞机行动最佳数值，调用BaseCalculateFunc并默认为pso方法
+
+类：Plane
+作用：是BasePlane的子类，相比起BasePlane，多添加了Value类，可在后期用于实现分布式架构
+
+类：Priority
+作用：包含两队Plane，主要为了计算优势矩阵matrix
