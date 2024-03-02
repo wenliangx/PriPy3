@@ -27,7 +27,7 @@ def regularization(velocity: np.ndarray) -> np.ndarray:
 
 
 # 将球坐标系的速度转换到直角坐标系中
-def translate_velocity(velocity: np.ndarray) -> np.ndarray:
+def     translate_velocity(velocity: np.ndarray) -> np.ndarray:
     velocity = regularization(velocity)
     return velocity[0] * np.array(object=[np.cos(velocity[1]) * np.sin(velocity[2]),
                                           np.sin(velocity[1]) * np.sin(velocity[2]),
@@ -36,6 +36,10 @@ def translate_velocity(velocity: np.ndarray) -> np.ndarray:
 
 # 计算下一时刻的位置
 def calculate_update_position(position: np.ndarray, velocity: np.ndarray, time: float = 0.5) -> np.ndarray:
+    print(position)
+    print(velocity)
+    print(translate_velocity(velocity))
+    print(position + time * translate_velocity(velocity))
     return position + time * translate_velocity(velocity)
 
 
@@ -56,7 +60,7 @@ def calculate_update_velocity(velocity: np.ndarray, way_calculate_velocity: int,
 class BasePlane:
     def __init__(self, position: Union[list, tuple, np.ndarray] = None,
                  velocity: Union[list, tuple, np.ndarray] = None,
-                 velocity_limit: float = 100.0, ubs: tuple = None, ):
+                 velocity_limit: float = 10.0, ubs: tuple = None, ):
 
         if position is None:
             self.position = np.array(object=[0, 0, 0], dtype=np.float64)
@@ -73,7 +77,7 @@ class BasePlane:
             self.position = position
 
         if velocity is None:
-            self.velocity = np.array(object=[10, 0, np.pi / 2], dtype=np.float64)
+            self.velocity = np.array(object=[5, 0, np.pi / 2], dtype=np.float64)
         elif type(velocity) is not np.ndarray:
             self.velocity = np.array(object=velocity, dtype=float)
         elif not velocity.dtype == np.float64:
@@ -88,7 +92,7 @@ class BasePlane:
             self.velocity = velocity
 
         if ubs is None:
-            self.ubs = (10, np.pi / 12, np.pi / 24)
+            self.ubs = (2, np.pi / 20, np.pi / 24)
         else:
             self.ubs = ubs
 
@@ -102,7 +106,7 @@ class BasePlane:
         updated_plane.velocity = self.velocity + values
         updated_plane.velocity[0] = min(float(updated_plane.velocity[0]), self.velocity_limit)
         updated_plane.velocity = regularization(updated_plane.velocity)
-        updated_plane.position = self.position + updated_plane.velocity * time
+        updated_plane.position = self.position + translate_velocity(updated_plane.velocity) * time
         return updated_plane
 
     def __del__(self):

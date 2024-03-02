@@ -9,12 +9,12 @@ from PriPy.priority import Priority
 
 size = 2
 iter_num = 10  # 迭代步数
-size_pop = 100 * size  # 粒子数量
-max_iter = 300  # 粒子群算法最大迭代数
+size_pop = 200 * size  # 粒子数量
+max_iter = 50  # 粒子群算法最大迭代数
 w = 0.8
 c1 = 0.5
 c2 = 0.6  # 粒子群算法权重
-c_time = 0.5  # 间隔时间
+c_time = 0.1  # 间隔时间
 
 priority = Priority(size=size, time=c_time)
 
@@ -50,8 +50,8 @@ def m_nash_func2(x):
     x_t = np.array(object=x0, dtype=float)
     y_t = np.array(object=y0, dtype=float)
 
-    x_t = (x_t - np.mean(x_t)) / np.std(x_t)
-    y_t = (y_t - np.mean(y_t)) / np.std(y_t)
+    x_t = x_t / np.sum(x_t)
+    y_t = y_t / np.sum(y_t)
 
     return (max(m_matrix_function(x=x_t, y=y_t, matrix=priority.matrix_x), float(0)) +
             max(m_matrix_function(x=y_t, y=x_t, matrix=priority.matrix_y), float(0)))
@@ -66,17 +66,17 @@ def m_matrix_function(x: np.ndarray, y: np.ndarray, matrix: np.ndarray):
 
 # 通过概率随机选择方法
 def choose(x: np.ndarray, num: np.ndarray):
-    result = np.array([[0, 0]])
+    result = np.array([0, 0])
     if x[0, 0] > num[0]:
-        result[0, 0] = 0
+        result[0] = 0
     if x[1, 0] > num[1]:
-        result[0, 1] = 0
+        result[1] = 0
 
     for i in range(1, 3 ** size):
         if sum(x[0, 0:i + 1]) > num[0] >= sum(x[0, 0:i]):
-            result[0, 0] = i
+            result[0] = i
         if sum(x[1, 0:i + 1]) > num[1] >= sum(x[1, 0:i]):
-            result[0, 1] = i
+            result[1] = i
     return result
 
 
@@ -101,6 +101,9 @@ def main(m_iter: int = 50):
     for steps in pbar:
         time1 = time.time()
         priority.calculate_matrix()
+        for i in range(size):
+            print(priority.planes_x[i].values)
+            print(priority.planes_y[i].values)
         time4 = time.time()
         print('values calculation time:' + str(time4 - time1))
 
@@ -123,19 +126,29 @@ def main(m_iter: int = 50):
 
         best_x = list(pso.gbest_x)
         possibility = np.array(object=[best_x[0: 3 ** size], best_x[3 ** size: 2 * 3 ** size]], dtype=float)
+        possibility[0, :] = possibility[0, :] / np.sum(possibility[0, :])
+        possibility[1, :] = possibility[1, :] / np.sum(possibility[1, :])
 
-        # choice_number = np.random.rand(2)
-        # choice = choose(best_x, choice_number)
+        choice_number = np.random.rand(2)
+        choice = choose(possibility, choice_number)
 
-        choice = another_choose(possibility)
+        # choice = another_choose(possibility)
 
         for i in range(size):
-            priority.planes_x[i] = priority.planes_x[i].calculate_updated_plane(
-                [(priority.planes_x[i].values[j] if j == (choice[0] % (3 ** i)) else 0) for j in range(3)],
-                time=c_time)
-            priority.planes_y[i] = priority.planes_y[i].calculate_updated_plane(
-                [(priority.planes_y[i].values[j] if j == (choice[1] % (3 ** i)) else 0) for j in range(3)],
-                time=c_time)
+            if i == 0:
+                priority.planes_x[i] = priority.planes_x[i].calculate_updated_plane(
+                    [(priority.planes_x[i].values[j] if j == (choice[0] % 3) else 0) for j in range(3)],
+                    time=c_time)
+                priority.planes_y[i] = priority.planes_y[i].calculate_updated_plane(
+                    [(priority.planes_y[i].values[j] if j == (choice[1] % 3) else 0) for j in range(3)],
+                    time=c_time)
+            else:
+                priority.planes_x[i] = priority.planes_x[i].calculate_updated_plane(
+                    [(priority.planes_x[i].values[j] if j == (choice[0] // (3 ** i)) else 0) for j in range(3)],
+                    time=c_time)
+                priority.planes_y[i] = priority.planes_y[i].calculate_updated_plane(
+                    [(priority.planes_y[i].values[j] if j == (choice[1] // (3 ** i)) else 0) for j in range(3)],
+                    time=c_time)
         # 更新位置和速度
 
         for i in range(size):
@@ -144,6 +157,7 @@ def main(m_iter: int = 50):
 
             vec_x[steps + 1, 3 * i: 3 * i + 3] = priority.planes_x[i].velocity
             vec_y[steps + 1, 3 * i: 3 * i + 3] = priority.planes_y[i].velocity  # 记录
+            # print(tra_x)
 
 
 # 画图
@@ -182,7 +196,8 @@ def m_draw_fig_based_excel():
     datas = [pd.read_excel('./Outputs/data.xlsx', sheet_name=i).values[:, 1::] for i in sheet_names]
     # print(datas)
     # print(datas[0].shape)
-    interval = 50
+    fps = 20
+    interval = int(1000 / 20)
     frames = int(c_time * iter_num * 1000 / interval)
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
@@ -275,7 +290,7 @@ def m_draw_fig_based_excel():
         name = './Outputs/Fig_Res/Pictures/a' + str(k) + '.png'
         plt.savefig(name)
         plt.cla()
-    with imageio.get_writer(uri='./Outputs/test.gif', mode='I', fps=20) as writer:
+    with imageio.get_writer(uri='./Outputs/test.gif', mode='I', fps=fps) as writer:
         pbar = tqdm(range(frames), desc='Processing gif draw', ncols=100)
         for i in pbar:
             writer.append_data(imageio.v3.imread('./Outputs/Fig_Res/Pictures/a' + str(i) + '.png'))

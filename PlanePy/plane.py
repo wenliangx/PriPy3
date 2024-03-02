@@ -8,7 +8,7 @@ from PlanePy.value import Value
 class Plane(BasePlane):
     def __init__(self, position: Union[list, tuple, np.ndarray] = None,
                  velocity: Union[list, tuple, np.ndarray] = None,
-                 velocity_limit: float = 100.0, ubs: tuple = None,
+                 velocity_limit: float = 10.0, ubs: tuple = None,
                  func=None):
         super(Plane, self).__init__(position, velocity, velocity_limit, ubs)
         self.__values = Value(func=func)

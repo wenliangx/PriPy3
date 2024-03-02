@@ -13,14 +13,14 @@ class Priority:
         if planes_x is None:
             planes_x = list(map(
                 lambda i:
-                Plane(position=[10 + 8 * i, 0, 0],
-                      velocity=[5 - 0.6 * i, 1 + 2 * i, 1.1 * i]),
+                Plane(position=[-10 - 8 * i, 0, 0],
+                      velocity=[5 - 0.6 * i, 0, np.pi / 2]),
                 range(size)))
         if planes_y is None:
             planes_y = list(map(
                 lambda i:
-                Plane(position=[-7 + 5 * i, 10, 10 * i],
-                      velocity=[5 - 0.6 * i, -np.pi - i, 1.5 * i]),
+                Plane(position=[7 + 5 * i, 0.2 * i,  5 + 0.5 * i],
+                      velocity=[5 - 0.6 * i, np.pi, np.pi / 2]),
                 range(size)))
         self.planes_x = planes_x
         self.planes_y = planes_y
@@ -52,12 +52,12 @@ class Priority:
             raise ValueError('c2 is not between 0 and 1')
 
         if k_x is None:
-            self.k_x = [0.25, 0.35, 0.4]
+            self.k_x = [0.55, 0.05, 0.4]
         else:
             self.k_x = k_x
 
         if k_y is None:
-            self.k_y = [0.05, 0.15, 0.8]
+            self.k_y = [0.05, 0.25, 0.7]
         else:
             self.k_y = k_y
         self.time = time
@@ -89,12 +89,12 @@ class Priority:
         for i in range(3 ** self.size):
             updated_planes_x = list(map(
                 lambda m: self.planes_x[m].base_plane.calculate_updated_plane
-                (self.planes_x[m].values[i % (3 ** m)], time=self.time),
+                (self.planes_x[m].values[i % 3 if m == 0 else i // (3 ** m)], time=self.time),
                 range(self.size)))
             for j in range(3 ** self.size):
                 updated_planes_y = list(map(
                     lambda n: self.planes_y[n].base_plane.calculate_updated_plane
-                    (self.planes_x[n].values[j % (3 ** n)], time=self.time),
+                    (self.planes_x[n].values[j % 3 if n == 0 else j // (3 ** n)], time=self.time),
                     range(self.size)))
                 self.__matrix_x[i, j] = np.mean(list(map(
                     lambda p, q: single_priority(updated_planes_x[p], updated_planes_y[q], self.k_x),

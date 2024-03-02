@@ -35,10 +35,14 @@ class Value:
                     if kwargs.get('c2') is None:
                         kwargs['c2'] = 0.5
 
-                    # 粒子群算法计算值
-                    pso = PSO(func=cost_func, n_dim=1, pop=kwargs['size_pop'], max_iter=kwargs['max_iter'],
-                              ub=[plane_x.ubs[kwargs['way']]], lb=[-plane_x.ubs[kwargs['way']]],
-                              w=kwargs['w'], c1=kwargs['c1'], c2=kwargs['c2'])
+                    if kwargs['way'] == 0 and plane_x.velocity[0] == plane_x.velocity_limit:
+                        pso = PSO(func=cost_func, n_dim=1, pop=kwargs['size_pop'], max_iter=kwargs['max_iter'],
+                                  ub=[0], lb=[-plane_x.ubs[kwargs['way']]],
+                                  w=kwargs['w'], c1=kwargs['c1'], c2=kwargs['c2'])
+                    else:
+                        pso = PSO(func=cost_func, n_dim=1, pop=kwargs['size_pop'], max_iter=kwargs['max_iter'],
+                                  ub=[plane_x.ubs[kwargs['way']]], lb=[-plane_x.ubs[kwargs['way']]],
+                                  w=kwargs['w'], c1=kwargs['c1'], c2=kwargs['c2'])
                     pso.run()
                     return float(pso.gbest_x)
             func = PsoCalculateFunc.calculate_func
