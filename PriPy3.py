@@ -7,7 +7,7 @@ import pandas as pd
 from sko.PSO import PSO
 from tqdm import tqdm
 
-from PlanePy.util import translate_velocity
+from PlanePy.util import transform_velocity
 from PriPy.priority import Priority
 from PriPy.priority import base3_transform
 
@@ -74,11 +74,11 @@ class PriPy3:
 
             for i in range(self.size):
                 self.priority.planes_x[i] = self.priority.planes_x[i].calculate_updated_plane(
-                        [(self.priority.planes_x[i].values[j] if j == (result_x[i]) else 0) for j in range(3)],
-                        time=self.time_interval)
+                    [(self.priority.planes_x[i].values[j] if j == (result_x[i]) else 0) for j in range(3)],
+                    time=self.time_interval)
                 self.priority.planes_y[i] = self.priority.planes_y[i].calculate_updated_plane(
-                        [(self.priority.planes_y[i].values[j] if j == (result_y[i]) else 0) for j in range(3)],
-                        time=self.time_interval)
+                    [(self.priority.planes_y[i].values[j] if j == (result_y[i]) else 0) for j in range(3)],
+                    time=self.time_interval)
 
             for i in range(self.size):
                 self.trac_x[self.steps + 1, 3 * i: 3 * i + 3] = self.priority.planes_x[i].position
@@ -181,9 +181,7 @@ class PriPy3:
         def multi_transform_velocity(multi_velocity):
             new_velocity = multi_velocity.copy()
             for num_planes in range(self.size):
-                print(num_planes)
-                print(type(num_planes))
-                new_velocity[3 * num_planes: 3 * num_planes + 3] = translate_velocity(
+                new_velocity[3 * num_planes: 3 * num_planes + 3] = transform_velocity(
                     new_velocity[3 * num_planes: 3 * num_planes + 3])
             return new_velocity
 
@@ -194,7 +192,6 @@ class PriPy3:
                 points_y[num] = self.trac_y[base_time]
             else:
                 ratio = (float(num * interval / 1000) - base_time * self.time_interval) / float(self.time_interval)
-                print(ratio)
                 v_x = ((1 - ratio) * multi_transform_velocity(self.vec_x[base_time, :]) +
                        ratio * multi_transform_velocity(self.vec_x[base_time + 1, :]))
                 v_y = ((1 - ratio) * multi_transform_velocity(self.vec_y[base_time, :]) +
@@ -206,10 +203,6 @@ class PriPy3:
                 points_y[num] = (self.trac_y[base_time, :] +
                                  0.5 * (float(num * interval / 1000) - base_time * self.time_interval) *
                                  (self.vec_y[base_time, :] + v_y))
-
-        print(self.trac_x)
-        print(points_x)
-
 
         def frame_draw(frame_num):
             if frame_num == 0:

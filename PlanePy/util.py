@@ -28,7 +28,7 @@ def regularization(velocity: np.ndarray) -> np.ndarray:
 
 
 # 将球坐标系的速度转换到直角坐标系中
-def translate_velocity(velocity: np.ndarray) -> np.ndarray:
+def transform_velocity(velocity: np.ndarray) -> np.ndarray:
     velocity = regularization(velocity)
     return velocity[0] * np.array(object=[np.cos(velocity[1]) * np.sin(velocity[2]),
                                           np.sin(velocity[1]) * np.sin(velocity[2]),
@@ -86,7 +86,7 @@ class BasePlane:
         updated_plane.velocity[0] = min(float(updated_plane.velocity[0]), self.velocity_limit)
         updated_plane.velocity = regularization(updated_plane.velocity)
         updated_plane.position = (self.position +
-                                  0.5 * time * (translate_velocity(updated_plane.velocity) + self.velocity))
+                                  0.5 * time * (transform_velocity(updated_plane.velocity) + self.velocity))
         return updated_plane
 
     def __del__(self):

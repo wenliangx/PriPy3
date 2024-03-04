@@ -3,7 +3,7 @@ from typing import Union
 import numpy as np
 
 from PlanePy.util import BasePlane
-from PlanePy.util import translate_velocity
+from PlanePy.util import transform_velocity
 
 
 def priority_d(position_x: np.ndarray,
@@ -26,7 +26,7 @@ def priority_v(velocity_x: np.ndarray, velocity_y: np.ndarray):
 
 
 def priority_a(plane_x: BasePlane, plane_y: BasePlane):
-    velocity_x, velocity_y = translate_velocity(plane_x.velocity), translate_velocity(plane_y.velocity)  # 转化为直角坐标系下计算
+    velocity_x, velocity_y = transform_velocity(plane_x.velocity), transform_velocity(plane_y.velocity)  # 转化为直角坐标系下计算
     if np.linalg.norm(velocity_x) == 0 or np.linalg.norm(velocity_y) == 0:
         return -10
     position = plane_y.position - plane_x.position
