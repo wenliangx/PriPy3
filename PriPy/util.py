@@ -1,5 +1,7 @@
 from typing import Union
+
 import numpy as np
+
 from PlanePy.util import BasePlane
 from PlanePy.util import translate_velocity
 

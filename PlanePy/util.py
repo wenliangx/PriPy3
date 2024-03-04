@@ -1,8 +1,9 @@
-import numpy as np
 from typing import Union
 
+import numpy as np
 
-# 将速度（柱坐标系）正规化
+
+# 将速度（球坐标系）正规化
 def regularization(velocity: np.ndarray) -> np.ndarray:
     # 速率调整为正数
     if velocity[0] < 0:
@@ -27,33 +28,11 @@ def regularization(velocity: np.ndarray) -> np.ndarray:
 
 
 # 将球坐标系的速度转换到直角坐标系中
-def     translate_velocity(velocity: np.ndarray) -> np.ndarray:
+def translate_velocity(velocity: np.ndarray) -> np.ndarray:
     velocity = regularization(velocity)
     return velocity[0] * np.array(object=[np.cos(velocity[1]) * np.sin(velocity[2]),
                                           np.sin(velocity[1]) * np.sin(velocity[2]),
                                           np.cos(velocity[2])], dtype=np.float64)
-
-
-# 计算下一时刻的位置
-def calculate_update_position(position: np.ndarray, velocity: np.ndarray, time: float = 0.5) -> np.ndarray:
-    print(position)
-    print(velocity)
-    print(translate_velocity(velocity))
-    print(position + time * translate_velocity(velocity))
-    return position + time * translate_velocity(velocity)
-
-
-# 计算下一时刻的速度
-def calculate_update_velocity(velocity: np.ndarray, way_calculate_velocity: int,
-                              value: float = 0.0, velocity_limit: float = 100.0) -> np.ndarray:
-    if way_calculate_velocity == 0:
-        velocity[0] = min(float(value) + float(velocity[0]), velocity_limit)
-    elif way_calculate_velocity == 1:
-        velocity[1] = velocity[1] - value
-    elif way_calculate_velocity == 2:
-        velocity[2] = velocity[2] - value
-    velocity = regularization(velocity)
-    return velocity
 
 
 # 基础飞机，包含位置，速度，速度上限和加速度上限
@@ -106,7 +85,8 @@ class BasePlane:
         updated_plane.velocity = self.velocity + values
         updated_plane.velocity[0] = min(float(updated_plane.velocity[0]), self.velocity_limit)
         updated_plane.velocity = regularization(updated_plane.velocity)
-        updated_plane.position = self.position + translate_velocity(updated_plane.velocity) * time
+        updated_plane.position = (self.position +
+                                  0.5 * time * (translate_velocity(updated_plane.velocity) + self.velocity))
         return updated_plane
 
     def __del__(self):
