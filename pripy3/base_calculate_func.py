@@ -3,7 +3,7 @@ from abc import abstractmethod
 
 from numpy import ndarray
 
-from PlanePy.util import BasePlane
+from pripy3.util import BasePlane
 
 
 class BaseCalculateFunc(ABC):

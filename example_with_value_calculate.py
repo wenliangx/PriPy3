@@ -2,15 +2,14 @@ import numpy as np
 from matplotlib import pyplot as plt
 from sko.PSO import PSO
 
-from PlanePy.base_calculate_func import BaseCalculateFunc
-from PlanePy.plane import Plane
-from PlanePy.util import BasePlane
-from PriPy.util import single_priority
-from PriPy3 import PriPy3
+from pripy3.base_calculate_func import BaseCalculateFunc
+from pripy3.plane import Plane
+from pripy3.util import single_priority, BasePlane
+from pripy3.PriPy3 import PriPy3
 
-size = 3  # 飞机群规模
+size = 4  # 飞机群规模
 iter_num = 200  # 迭代步数
-pop_size = 200 * size  # 计算纳什函数的pso粒子数量
+pop_size = 200  # 计算纳什函数的pso粒子数量
 max_iter = 50  # 计算纳什函数pso的最大迭代数
 w = 0.8  # 计算纳什函数pso的w
 c1 = 0.5  # 计算纳什函数pso的c1
@@ -25,38 +24,38 @@ class PsoCalculateFunc(BaseCalculateFunc):
     # 不能改变参数列表，额外的参数都需要从**kwargs传进
     # 该函数和所需参数需要在生成飞机时传入
     # 前三个参数不需要手动传入
-    def calculate_func(plane_x: BasePlane, planes_y: list, time: float = 0.1, **kwargs) -> float:
-        if kwargs.get('k') is None:
-            kwargs['k'] = [0.1, 0.3, 0.6]
-        if kwargs.get('pop_size') is None:
-            kwargs['pop_size'] = 50
-        if kwargs.get('max_iter') is None:
-            kwargs['max_iter'] = 100
-        if kwargs.get('w') is None:
-            kwargs['w'] = 0.8
-        if kwargs.get('c1') is None:
-            kwargs['c1'] = 0.5
-        if kwargs.get('c2') is None:
-            kwargs['c2'] = 0.5
+    def calculate_func(plane_x: BasePlane, planes_y: list, **kwargs) -> float:
+        # Set default values for kwargs
+        kwargs.setdefault('k', [0.1, 0.3, 0.6])
+        kwargs.setdefault('time', 0.1)
+        kwargs.setdefault('pop_size', 50)
+        kwargs.setdefault('max_iter', 100)
+        kwargs.setdefault('w', 0.8)
+        kwargs.setdefault('c1', 0.5)
+        kwargs.setdefault('c2', 0.5)
+
+        way = kwargs['way']
+        k_val = kwargs['k']
+        time_val = kwargs['time']
+        pop_size_val = kwargs['pop_size']
+        max_iter_val = kwargs['max_iter']
+        w_val = kwargs['w']
+        c1_val = kwargs['c1']
+        c2_val = kwargs['c2']
 
         def cost_func(x):
             x = x[0]
             updated_plane = plane_x.calculate_updated_plane(
-                values=tuple(((x if i == kwargs['way'] else 0) for i in range(3))), time=time)
-            return sum(list(map(
-                lambda plane_y: -single_priority(plane_x=updated_plane, plane_y=plane_y, k=kwargs['k']), planes_y
-            )))
+                values=tuple(((x if i == way else 0) for i in range(3))), time=time_val)
 
-        if kwargs['way'] == 0 and plane_x.velocity[0] == plane_x.velocity_limit:
-            pso = PSO(func=cost_func, n_dim=1, pop=kwargs['pop_size'], max_iter=kwargs['max_iter'],
-                      ub=[0], lb=[-plane_x.ubs[kwargs['way']]],
-                      w=kwargs['w'], c1=kwargs['c1'], c2=kwargs['c2'])
-        else:
-            pso = PSO(func=cost_func, n_dim=1, pop=kwargs['pop_size'], max_iter=kwargs['max_iter'],
-                      ub=[plane_x.ubs[kwargs['way']]], lb=[-plane_x.ubs[kwargs['way']]],
-                      w=kwargs['w'], c1=kwargs['c1'], c2=kwargs['c2'])
+            return sum(
+                -single_priority(plane_x=updated_plane, plane_y=plane_y, k=k_val) for plane_y in planes_y)
+
+        pso = PSO(func=cost_func, n_dim=1, pop=pop_size_val, max_iter=max_iter_val,
+                  ub=[plane_x.ubs[way]], lb=[-plane_x.ubs[way]], w=w_val, c1=c1_val, c2=c2_val)
+
         pso.run()
-        return float(pso.gbest_x)
+        return float(pso.gbest_x[0])
 
 
 # 生成飞机群x，参数有：

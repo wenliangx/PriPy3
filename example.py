@@ -1,8 +1,8 @@
 import numpy as np
 from matplotlib import pyplot as plt
 
-from PlanePy.plane import Plane
-from PriPy3 import PriPy3
+from pripy3.plane import Plane
+from pripy3.PriPy3 import PriPy3
 
 size = 2  # 飞机群规模
 iter_num = 15  # 迭代步数
@@ -18,12 +18,12 @@ time_interval = 0.1  # 间隔时间
 # 若要改变飞机计算最佳数值的方法请参考example_with_calculate.py
 planes_x = [Plane(position=(-10 - 8 * i, 0, 0),
                   velocity=(5 - 0.6 * i, 0, np.pi / 2),
-                  velocity_limit=10, ubs=(0.1, np.pi/24, np.pi/24))for i in range(size)]
+                  velocity_limit=10, ubs=(0.1, np.pi / 24, np.pi / 24)) for i in range(size)]
 
 # 生成飞机群y
-planes_y = [Plane(position=(7 + 5 * i, 0.2 * i,  5 + 0.5 * i),
+planes_y = [Plane(position=(7 + 5 * i, 0.2 * i, 5 + 0.5 * i),
                   velocity=(5 - 0.6 * i, np.pi, np.pi / 2),
-                  velocity_limit=10, ubs=(0.1, np.pi/24, np.pi/24))for i in range(size)]
+                  velocity_limit=10, ubs=(0.1, np.pi / 24, np.pi / 24)) for i in range(size)]
 
 # 接下来开始迭代，PriPy3是一个迭代器，类似于range()，将飞机群等上面的所有参数传进去生成迭代器。
 # 每一次for循环都会进行一次迭代，返回的i为一个自定义类，里面包含每一次迭代的飞机数据，在for循环内部就可以进行一些自定的操作

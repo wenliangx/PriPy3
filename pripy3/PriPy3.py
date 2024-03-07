@@ -7,15 +7,19 @@ import pandas as pd
 from sko.PSO import PSO
 from tqdm import tqdm
 
-from PlanePy.util import transform_velocity
-from PriPy.priority import Priority
-from PriPy.priority import base3_transform
+from pripy3.plane import Plane
+from pripy3.util import transform_velocity, base3_transform
+from pripy3.priority import Priority
 
 
 class PriPy3:
-    def __init__(self, planes_x=None, planes_y=None, k_x=None, k_y=None,
-                 size=2, iter_num=10, time_interval=0.1,
-                 pso_pop_size=200, pso_max_iter=100, pso_w=0.5, pso_c1=0.6, pso_c2=0.6):
+    def __init__(self,
+                 planes_x: list[Plane] = None,
+                 planes_y: list[Plane] = None,
+                 k_x=None, k_y=None,
+                 size: int = 2, iter_num: int = 10, time_interval: float = 0.1,
+                 pso_pop_size: int = 200, pso_max_iter: int = 100,
+                 pso_w: float = 0.5, pso_c1: float = 0.6,pso_c2: float = 0.6):
 
         self.priority = Priority(planes_x=planes_x, planes_y=planes_y, size=size,
                                  k_x=k_x, k_y=k_y, time=time_interval)
@@ -80,7 +84,6 @@ class PriPy3:
                     [(self.priority.planes_y[i].values[j] if j == (result_y[i]) else 0) for j in range(3)],
                     time=self.time_interval)
 
-            for i in range(self.size):
                 self.trac_x[self.steps + 1, 3 * i: 3 * i + 3] = self.priority.planes_x[i].position
                 self.trac_y[self.steps + 1, 3 * i: 3 * i + 3] = self.priority.planes_y[i].position
 
@@ -97,7 +100,6 @@ class PriPy3:
 
     def m_matrix_function(self, x: np.ndarray, y: np.ndarray, matrix: np.ndarray):
         temp = list(map(lambda i: (matrix[i] @ y.T) - (x @ matrix @ y.T), range(3 ** self.size)))
-
         return max(temp)
 
     def m_nash_func(self, x):

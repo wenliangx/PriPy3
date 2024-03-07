@@ -2,13 +2,14 @@ from typing import Union
 
 import numpy as np
 
-from PlanePy.util import BasePlane
-from PlanePy.value import Value
+from pripy3.util import BasePlane
+from pripy3.value import Value
 
 
 # 比起基础飞机，添加计算最佳策略的类Value
 class Plane(BasePlane):
-    def __init__(self, position: Union[list, tuple, np.ndarray] = None,
+    def __init__(self,
+                 position: Union[list, tuple, np.ndarray] = None,
                  velocity: Union[list, tuple, np.ndarray] = None,
                  velocity_limit: float = 10.0, ubs: tuple = None,
                  func=None, **kwargs_in_func):
@@ -34,9 +35,6 @@ class Plane(BasePlane):
         return BasePlane(self.position, self.velocity, self.velocity_limit, self.ubs)
 
     # 计算最佳策略值
-    def calculate_values(self, planes_y: list = None, time: float = 0.1, **kwargs):
+    def calculate_values(self, planes_y: list = None, time: float = 0.1):
         self.__values.calculate(plane_x=self.base_plane, planes_y=planes_y, time=time)
 
-    def __del__(self):
-        super(Plane, self).__del__()
-        del self.__values
